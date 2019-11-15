@@ -48,5 +48,10 @@ int main(int argc, char **argv)
     printf("c == 0? --> %d\n", isZero(&c));
     printf("d == 0? --> %d\n", isZero(&d));
 
+    clearByZero(&a);
+	printf("%d\n", setInt(&a, -12345678));
+    printf("a \t= ");
+	dispNumber(&a);
+
     return 0;
 }

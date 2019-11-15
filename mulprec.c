@@ -144,3 +144,36 @@ int divBy10(struct NUMBER *a, struct NUMBER *b)
 
 	return n;
 }
+
+//
+//  多倍長変数のaにint型変数xの値を設定
+//
+//  戻り値
+//      0 ... 正常終了
+//     -1 ... xの値がaに設定しきれなかった
+//
+int setInt(struct NUMBER *a, int x)
+{
+	int surplus = 0;
+	int i;
+
+	if (x < 0) {
+		a->sign = 0;
+
+		x = ~x + 1;
+		//x *= -1;
+	}
+
+    for (i = 0; x > 0; i++)
+	{
+		surplus = x % 10;
+		if (i >= KETA) {
+			return -1;
+		}
+		a->n[(KETA-1) - i] = surplus;
+		x -= surplus;
+		x /= 10;
+	}
+
+	return 0;
+}

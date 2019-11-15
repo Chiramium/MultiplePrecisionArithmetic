@@ -19,3 +19,4 @@ void getAbs(struct NUMBER *a, struct NUMBER *b);
 int isZero(struct NUMBER *a);
 int mulBy10(struct NUMBER *a, struct NUMBER *b);
 int divBy10(struct NUMBER *a, struct NUMBER *b);
+int setInt(struct NUMBER *a, int x);
