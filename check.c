@@ -11,7 +11,13 @@ int main(int argc, char **argv)
     struct NUMBER a, b, c, d, e;
     int r;
 
-    srandom(time(NULL));    //  乱数シードの初期化
+    clearByZero(&a);
+    setInt(&a, 234);
+
+    dispNumber(&a);
+    putchar('\n');
+
+    /*srandom(time(NULL));    //  乱数シードの初期化
 
     clearByZero(&a);    //  a <= 0
     clearByZero(&b);    //  b <= 0
@@ -51,7 +57,7 @@ int main(int argc, char **argv)
     clearByZero(&a);
 	printf("%d\n", setInt(&a, -12345678));
     printf("a \t= ");
-	dispNumber(&a);
+	dispNumber(&a);*/
 
     return 0;
 }
