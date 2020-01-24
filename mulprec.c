@@ -12,7 +12,7 @@ void clearByZero(struct NUMBER* a)
 	int i;
 
 	for (i = 0; i < KETA; i++) {
-		a->n[i] = 0;
+		a->n[i] = 0;	//	各桁ごとの値を0に設定
 	}
 
 	a->sign = 1;	//	符号をプラス側にセット
@@ -25,6 +25,8 @@ void dispNumber(struct NUMBER* a)
 {
 	int i;
 
+	//	符号の表示
+	//	signが1のときに+を, それ以外のときに-を表示
 	if (a->sign == 1) {
 		putchar('+');
 	}
@@ -32,6 +34,7 @@ void dispNumber(struct NUMBER* a)
 		putchar('-');
 	}
 
+	//	各桁ごとの値を順番に表示
 	for (i = 0; i < KETA; i++) {
 		printf("%d ", a->n[i]);
 	}
@@ -71,8 +74,7 @@ void copyNumber(struct NUMBER *a, struct NUMBER *b)
 //
 void getAbs(struct NUMBER *a, struct NUMBER *b)
 {
-	//int i;
-
+	//	copyNumber関数を用いて, 符号を+に設定することによって絶対値を代入
 	copyNumber(a, b);
 
 	b->sign = 1;
@@ -86,13 +88,14 @@ int isZero(struct NUMBER *a)
 {
 	int i;
 
+	//	上位桁からその桁の値が0かどうかを比較
 	for (i = 0; i < KETA; i++) {
-		if (a->n[i] != 0) {
+		if (a->n[i] != 0) {	//	0でなかった場合に-1を返す
 			return -1;
 		}
 	}
 
-	return 0;
+	return 0;	//	すべての桁の値が0の場合に0を返す
 }
 
 //
@@ -106,17 +109,18 @@ int mulBy10(struct NUMBER *a, struct NUMBER *b)
 {
 	int i;
 
-	if (a->n[0] != 0) {
+	if (a->n[0] != 0) {	//	aの最上位桁が0でなければ10倍したときにオーバーフローしてしまう
 		return -1;	//	オーバーフロー
 	}
 
+	//	bのi桁にaのi+1桁（iの右の桁）を代入
 	for (i = 0; i < KETA - 1; i++) {
 		b->n[i] = a->n[i+1];
 	}
 
-	b->n[KETA-1] = 0;
+	b->n[KETA-1] = 0;	//	bの最下位桁に0を代入
 
-	b->sign = a->sign;
+	b->sign = a->sign;	//	符号の情報をコピー
 
 	return 0;
 }
@@ -125,24 +129,25 @@ int mulBy10(struct NUMBER *a, struct NUMBER *b)
 //	aを1/10倍してbに返す
 //
 //	戻り値
-//		aを10で割った余り
+//	n ... aを10で割った余り
 //
 int divBy10(struct NUMBER *a, struct NUMBER *b)
 {
 	int i;
 	int n = 0;
 
-	n = a->n[KETA-1];
+	n = a->n[KETA-1];	//	aを10で割った余りをnに代入
 
+	//	bの最下位桁から順番にaの最下位+1+i桁目の値を代入
 	for (i = 0; i < KETA - 2; i++) {
 		b->n[(KETA-1) - i] = a->n[(KETA-2) - i];
 	}
 
-	b->n[0] = 0;
+	b->n[0] = 0;	//	bの最上位桁に0を代入
 
-	b->sign = a->sign;
+	b->sign = a->sign;	//	符号の情報をコピー
 
-	return n;
+	return n;	//	戻り値にnを返す
 }
 
 //
@@ -295,6 +300,8 @@ int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 {
 	int i, x = 0, e = 0;
 
+	clearByZero(c);
+
 	if (getSign(a) == -1) {
 		if (getSign(b) == -1) {
 			struct NUMBER d, e;
@@ -308,14 +315,27 @@ int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 		struct NUMBER f;
 		getAbs(a, &f);
 		sub(&f, b, c);
-		setSign(c, -1);
-
+		
+		if (numComp(&f, b) == 1) {
+			setSign(c, -1);
+		}
+		else {
+			setSign(c, 1);
+		}
+		
 		return 0;
 	}
 	else if (getSign(b) == -1) {
 		struct NUMBER g;
 		getAbs(b, &g);
 		sub(a, &g, c);
+
+		if (numComp(a, &g) >= 0) {
+			setSign(c, 1);
+		}
+		else {
+			setSign(c, -1);
+		}
 
 		return 0;
 	}
@@ -340,6 +360,8 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 {
 	int h = 0, i;
 
+	clearByZero(c);
+
 	if (getSign(a) == -1) {
 		if (getSign(b) == -1) {
 			struct NUMBER d, e;
@@ -348,7 +370,7 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 
 			sub(&d, &e, c);
 
-			if (numComp(a, b) == 1) {
+			if (numComp(a, b) >= 0) {
 				setSign(c, 1);	
 			}
 			else {
@@ -403,7 +425,7 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 		if (h == 1) {
 			return -1;
 		}
-			setSign(c, -1);
+		setSign(c, -1);
 	}
 	else {
 		clearByZero(c);

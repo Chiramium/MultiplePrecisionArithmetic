@@ -14,6 +14,7 @@ struct NUMBER
 };
 
 //	Prototype
+
 void clearByZero(struct NUMBER* a);
 void dispNumber(struct NUMBER* a);
 void setRnd(struct NUMBER *a, int k);
