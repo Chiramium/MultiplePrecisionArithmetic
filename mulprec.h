@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define KETA 20
+#define KETA 200
 #define RADIX 10000
 
 struct NUMBER

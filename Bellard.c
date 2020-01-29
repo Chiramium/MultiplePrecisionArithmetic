@@ -4,7 +4,7 @@
 #include "mulprec.h"
 
 //  POWがKETAの約84%の大きさにする
-#define POW 16
+#define POW 168
 #define E 2
 
 int bellard(struct NUMBER* answer);
