@@ -6,6 +6,7 @@
 #include <time.h>
 
 #define KETA 50
+#define RADIX 10000
 
 struct NUMBER
 {
@@ -22,8 +23,8 @@ void copyNumber(struct NUMBER *a, struct NUMBER *b);
 void getAbs(struct NUMBER *a, struct NUMBER *b);
 int isZero(struct NUMBER *a);
 int isOne(struct NUMBER *a);
-int mulBy10(struct NUMBER *a, struct NUMBER *b);
-int divBy10(struct NUMBER *a, struct NUMBER *b);
+int mulByRAD(struct NUMBER *a, struct NUMBER *b);
+int divByRAD(struct NUMBER *a, struct NUMBER *b);
 int setInt(struct NUMBER *a, int x);
 int setSign(struct NUMBER *a, int s);
 int getSign(struct NUMBER *a);
