@@ -4,7 +4,7 @@
 #include "mulprec.h"
 
 //  POWがKETAの約84%の大きさにする
-#define POW 15
+#define POW 42
 #define E 2
 
 int bellard(struct NUMBER* answer);
@@ -20,9 +20,11 @@ int main()
 
     clearByZero(&answer);
 
-    printf("Bellard = %d\n", bellard(&answer));
+    printf("\nBellard = %d\n", bellard(&answer));
 
-	printf("n= %d", E);
+	printf("KETA = %d", KETA);
+	putchar('\n');
+    printf("POW = %d", POW);
 	putchar('\n');
     printf("-------------------------------\n");
 	dispNumber(&answer);
@@ -128,6 +130,10 @@ int bellard(struct NUMBER* answer)
         }
 
         add(&s[4], &sigma[0], &sigma[0]);
+
+        if (sigma[0].n[0] > 0) {
+            return -1;
+        }
     }
     multiple(&four, &sigma[0], &fomula[0]);
 
@@ -224,6 +230,7 @@ int bellard(struct NUMBER* answer)
         putchar('\n');*/
         
         add(&t[16], &sigma[1], &sigma[1]);
+
     }
     fastDivide(&sigma[1], &sixtyFour, &fomula[1], &dummy);
 
