@@ -36,7 +36,7 @@ void dispNumber(struct NUMBER* a)
 
 	//	各桁ごとの値を順番に表示
 	for (i = 0; i < KETA; i++) {
-		printf("%d ", a->n[i]);
+		printf("%04d ", a->n[i]);
 	}
 }
 
