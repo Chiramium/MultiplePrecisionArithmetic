@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define KETA 30
+#define KETA 50
 
 struct NUMBER
 {
@@ -21,6 +21,7 @@ void setRnd(struct NUMBER *a, int k);
 void copyNumber(struct NUMBER *a, struct NUMBER *b);
 void getAbs(struct NUMBER *a, struct NUMBER *b);
 int isZero(struct NUMBER *a);
+int isOne(struct NUMBER *a);
 int mulBy10(struct NUMBER *a, struct NUMBER *b);
 int divBy10(struct NUMBER *a, struct NUMBER *b);
 int setInt(struct NUMBER *a, int x);
@@ -30,5 +31,12 @@ int numComp(struct NUMBER *a, struct NUMBER *b);
 void swap(struct NUMBER *a, struct NUMBER *b);
 int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c);
 int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c);
+int multiple(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c);
+int divide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMBER *d);
+int increment(struct NUMBER *a, struct NUMBER *b);
+int decrement(struct NUMBER *a, struct NUMBER *b);
+int fastPower(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c);
+int exponential_N(struct NUMBER *a, struct NUMBER *n, struct NUMBER *c);
+int fastDivide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMBER *d);
 
 #endif // ! MULPREC_H

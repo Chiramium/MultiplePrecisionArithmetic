@@ -59,6 +59,7 @@ void setRnd(struct NUMBER *a, int k)
 //
 void copyNumber(struct NUMBER *a, struct NUMBER *b)
 {
+	if (0) {
 	//	aのメンバー変数をすべてbにコピー
 	int i;
 
@@ -67,6 +68,13 @@ void copyNumber(struct NUMBER *a, struct NUMBER *b)
 	}
 
 	b->sign = a->sign;
+	}
+
+	if (1) {
+		*b = *a;
+
+		b->sign = a->sign;
+	}
 }
 
 //
@@ -99,6 +107,29 @@ int isZero(struct NUMBER *a)
 }
 
 //
+//	戻り値
+//		0 ... a == 1
+//	   -1 ... a != 1
+//
+int isOne(struct NUMBER *a)
+{
+	int i;
+
+	for (i = 0; i < KETA-1; i++) {
+		if (a->n[i] != 0) {
+			return -1;
+		}
+	}
+
+	if (a->n[KETA-1] != 1) {
+		return -1;
+	}
+	
+
+	return 0;
+}
+
+//
 //	aを10倍してbに返す
 //
 //	戻り値
@@ -107,7 +138,10 @@ int isZero(struct NUMBER *a)
 //
 int mulBy10(struct NUMBER *a, struct NUMBER *b)
 {
+	struct NUMBER x;
 	int i;
+
+	clearByZero(&x);
 
 	if (a->n[0] != 0) {	//	aの最上位桁が0でなければ10倍したときにオーバーフローしてしまう
 		return -1;	//	オーバーフロー
@@ -115,12 +149,14 @@ int mulBy10(struct NUMBER *a, struct NUMBER *b)
 
 	//	bのi桁にaのi+1桁（iの右の桁）を代入
 	for (i = 0; i < KETA - 1; i++) {
-		b->n[i] = a->n[i+1];
+		x.n[i] = a->n[i+1];
 	}
 
-	b->n[KETA-1] = 0;	//	bの最下位桁に0を代入
+	x.n[KETA-1] = 0;	//	bの最下位桁に0を代入
 
-	b->sign = a->sign;	//	符号の情報をコピー
+	x.sign = a->sign;	//	符号の情報をコピー
+
+	copyNumber(&x,b);
 
 	return 0;
 }
@@ -133,19 +169,24 @@ int mulBy10(struct NUMBER *a, struct NUMBER *b)
 //
 int divBy10(struct NUMBER *a, struct NUMBER *b)
 {
+	struct NUMBER x;
 	int i;
 	int n = 0;
+
+	clearByZero(&x);
 
 	n = a->n[KETA-1];	//	aを10で割った余りをnに代入
 
 	//	bの最下位桁から順番にaの最下位+1+i桁目の値を代入
-	for (i = 0; i < KETA - 2; i++) {
-		b->n[(KETA-1) - i] = a->n[(KETA-2) - i];
+	for (i = 0; i < KETA - 1; i++) {
+		x.n[(KETA-1) - i] = a->n[(KETA-2) - i];
 	}
 
-	b->n[0] = 0;	//	bの最上位桁に0を代入
+	x.n[0] = 0;	//	bの最上位桁に0を代入
 
-	b->sign = a->sign;	//	符号の情報をコピー
+	x.sign = a->sign;	//	符号の情報をコピー
+
+	copyNumber(&x, b);
 
 	return n;	//	戻り値にnを返す
 }
@@ -298,57 +339,66 @@ void swap(struct NUMBER *a, struct NUMBER *b)
 //
 int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 {
+	struct NUMBER n;
 	int i, x = 0, e = 0;
 
-	clearByZero(c);
+	clearByZero(&n);
 
 	if (getSign(a) == -1) {
 		if (getSign(b) == -1) {
 			struct NUMBER d, e;
 			getAbs(a, &d);
 			getAbs(b, &e);
-			add(&d, &e, c);
-			setSign(c, -1);
+			add(&d, &e, &n);
+			setSign(&n, -1);
+
+			copyNumber(&n, c);
 
 			return 0;
 		}
 		struct NUMBER f;
 		getAbs(a, &f);
-		sub(&f, b, c);
+		sub(&f, b, &n);
 		
 		if (numComp(&f, b) == 1) {
-			setSign(c, -1);
+			setSign(&n, -1);
 		}
 		else {
-			setSign(c, 1);
+			setSign(&n, 1);
 		}
+
+		copyNumber(&n, c);
 		
 		return 0;
 	}
 	else if (getSign(b) == -1) {
 		struct NUMBER g;
 		getAbs(b, &g);
-		sub(a, &g, c);
+		sub(a, &g, &n);
 
 		if (numComp(a, &g) >= 0) {
-			setSign(c, 1);
+			setSign(&n, 1);
 		}
 		else {
-			setSign(c, -1);
+			setSign(&n, -1);
 		}
+
+		copyNumber(&n, c);
 
 		return 0;
 	}
 
 	for (i = 0; i < KETA; i++) {
 		x = a->n[KETA-1 - i] + b->n[KETA-1 - i] + e;
-		c->n[KETA-1 - i] = x % 10;
+		n.n[KETA-1 - i] = x % 10;
 		e = x / 10;
 	}
 
 	if (e != 0) {
 		return -1;
 	}
+
+	copyNumber(&n, c);
 
 	return 0;
 }
@@ -358,9 +408,10 @@ int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 //
 int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 {
+	struct NUMBER n;
 	int h = 0, i;
 
-	clearByZero(c);
+	clearByZero(&n);
 
 	if (getSign(a) == -1) {
 		if (getSign(b) == -1) {
@@ -368,28 +419,34 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 			getAbs(a, &d);
 			getAbs(b, &e);
 
-			sub(&d, &e, c);
+			sub(&d, &e, &n);
 
 			if (numComp(a, b) >= 0) {
-				setSign(c, 1);	
+				setSign(&n, 1);	
 			}
 			else {
-				setSign(c, -1);
+				setSign(&n, -1);
 			}
+
+			copyNumber(&n, c);
 			
 			return 0;
 		}
 		struct NUMBER f;
 		getAbs(a, &f);
-		add(&f, b, c);
-		setSign(c, -1);
+		add(&f, b, &n);
+		setSign(&n, -1);
+
+		copyNumber(&n, c);
 			
 		return 0;
 	}
 	else if (getSign(b) == -1) {
 		struct NUMBER g;
 		getAbs(b, &g);
-		add(a, &g, c);
+		add(a, &g, &n);
+
+		copyNumber(&n, c);
 			
 		return 0;
 	}
@@ -397,11 +454,11 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 	if (numComp(a, b) == 1) {
 		for (i = 0; i < KETA; i++) {
 			if ((a->n[KETA-1 - i] - h) >= b->n[KETA-1 - i]) {
-				c->n[KETA-1 - i] = (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
+				n.n[KETA-1 - i] = (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
 				h = 0;
 			}
 			else {
-				c->n[KETA-1 - i] = 10 + (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
+				n.n[KETA-1 - i] = 10 + (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
 				h = 1;
 			}
 		}
@@ -413,11 +470,11 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 	else if (numComp(a,b) == -1) {
 		for (i = 0; i < KETA; i++) {
 			if ((b->n[KETA-1 - i] - h) >= a->n[KETA-1 - i]) {
-				c->n[KETA-1 - i] = (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
+				n.n[KETA-1 - i] = (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
 				h = 0;
 			}
 			else {
-				c->n[KETA-1 - i] = 10 + (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
+				n.n[KETA-1 - i] = 10 + (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
 				h = 1;
 			}
 		}
@@ -425,12 +482,415 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 		if (h == 1) {
 			return -1;
 		}
-		setSign(c, -1);
+		setSign(&n, -1);
 	}
 	else {
-		clearByZero(c);
+		clearByZero(&n);
 	}
+
+	copyNumber(&n, c);
 
 	return 0;
 	
+}
+
+//
+//	c <= a * b
+//
+//	##### REFERENCECODE #####
+//	--------NORMAL--------
+//	100 ... n * 0 (n = 0, 1, 2, ...)
+//	101 ... n * 1 (n = 1, 2, 3, ...)
+//	--------ERROR---------
+//	-1 ... overflow
+//
+int multiple(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
+{
+	struct NUMBER x;
+	struct NUMBER y;
+	//struct NUMBER k;
+
+	clearByZero(&x);
+	clearByZero(&y);
+	//clearByZero(&k);
+
+	if (isZero(a) == 0 || isZero(b) == 0) {
+		clearByZero(c);
+
+		return 100;
+	}
+
+	if (isOne(a) == 0) {
+		copyNumber(b, c);
+
+		return 101;
+	}
+	else if (isOne(b) == 0) {
+		copyNumber(a, c);
+
+		return 101;
+	}
+	else {}
+
+	getAbs(a, &x);
+	getAbs(b, &y);
+
+	/*printf("---------------------------\n");
+	dispNumber(&x);
+	putchar('\n');
+	dispNumber(&x);
+	putchar('\n');*/
+
+	int i = 0, j = 0;
+	int h = 0, e = 0;
+	struct NUMBER d;
+	clearByZero(&d);
+
+	clearByZero(c);
+
+	while (1)
+	{
+		if (i >= KETA) {
+			break;
+		}
+
+		//printf("%d回目\n", i);
+		
+		h = 0;
+		clearByZero(&d);
+
+		j = 0;
+
+		while (1)
+		{
+			if (j >= KETA) {
+				break;
+			}
+			e = x.n[KETA-1 - j] * y.n[KETA-1 - i] + h;
+			//printf("[%d]\n", KETA-1 - (j + i));
+			if ((j + i) < KETA){
+			d.n[KETA-1 - (j + i)] = e % 10;
+			h = e / 10;
+			}
+			else {
+				if (e > 0)
+					return -1;
+			}
+
+			if (j == KETA-1) {
+				if (h > 0) {
+					return -1;
+				}
+			}
+
+			j++;
+		}
+
+		//dispNumber(&d);
+		//putchar('\n');
+
+		if (add(&d, c, c) == -1) {
+			return -1;
+		}
+
+		/*dispNumber(c);
+		putchar('\n');
+		printf("---------------------------\n");*/
+
+		i++;
+	}
+
+	if (getSign(a) == -1) {
+		if (getSign(b) == 1) {
+			setSign(c, -1);
+		}
+	}
+	else if (getSign(b) == -1) {
+		setSign(c, -1);
+	}
+
+	return 0;
+}
+
+//
+//	c <= a / b の商
+//	d <= a / b の剰余
+//
+int divide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMBER *d)
+{
+	struct NUMBER m, n, x, y;
+
+	//int i = 0;
+
+	clearByZero(c);
+	clearByZero(d);
+	clearByZero(&m);
+	clearByZero(&n);
+	clearByZero(&x);
+	clearByZero(&y);
+
+	if (isZero(b) == 0) {
+		return  -1;
+	}
+
+	if (getSign(a) == -1) {
+		if (getSign(b) == -1) {
+			getAbs(a, &m);
+			getAbs(b, &n);
+			divide(&m, &n, c, d);
+			setSign(d, -1);
+			
+			return 0;
+		}
+		else {
+			getAbs(a, &m);
+			copyNumber(b, &n);
+			divide(&m, &n, c, d);
+			setSign(c, -1);
+			setSign(d, -1);
+
+			return 0;
+		}
+	}
+	else if (getSign(b) == -1) {
+		copyNumber(a, &m);
+		getAbs(b, &n);
+		divide(&m, &n, c, d);
+		setSign(c, -1);
+
+		return 0;
+	}
+
+	copyNumber(a, &m);
+
+	while (1) {
+		if (numComp(&m, b) == -1) {
+			copyNumber(&m, d);
+			break;
+		}
+		increment(c, &n);
+		copyNumber(&n, c);
+
+		//dispNumber(b);
+		//putchar('\n');
+		sub(&m, b, &n);
+		copyNumber(&n, &m);
+		//dispNumber(&n);
+		//putchar('\n');
+	}
+
+	return 0;
+}
+
+//
+//	b <= a++
+//
+int increment(struct NUMBER *a, struct NUMBER *b)
+{
+	struct NUMBER one, x, y;
+	int r;
+
+	clearByZero(&one);
+	clearByZero(&x);
+	clearByZero(&y);
+
+	copyNumber(a, &x);
+
+	one.n[KETA-1] = 1;
+	
+	r = add(&x, &one, &y);
+
+	copyNumber(&y, b);
+
+	return r;
+}
+
+//
+//	b <= a--
+//
+int decrement(struct NUMBER *a, struct NUMBER *b)
+{
+	struct NUMBER one, x, y;
+	int r;
+
+	clearByZero(&one);
+	clearByZero(&x);
+	clearByZero(&y);
+
+	copyNumber(a, &x);
+
+	one.n[KETA-1] = 1;
+
+	r = sub(&x, &one, &y);
+
+	copyNumber(&y, b);
+
+	return r;
+}
+
+//
+//	c <= a ^ b
+//	再帰を使用した累乗関数
+//
+int fastPower(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
+{
+	struct NUMBER x, y, z, m, n, two;
+
+	clearByZero(&x);
+	clearByZero(&y);
+	clearByZero(&z);
+	clearByZero(&m);
+	clearByZero(&n);
+	clearByZero(&two);
+
+	two.n[KETA-1] = 2;
+
+	if (isZero(b) == 0) {
+		clearByZero(c);
+		c->n[KETA-1] = 1;
+		return 0;
+	}
+
+	if (isOne(b) == 0)
+	{
+		copyNumber(a, c);
+		return 0;
+	}
+
+	divide(b, &two, &m, &n);
+	if (isZero(&n) == 0) {
+		if (multiple(a, a, &x) == -1)
+			return -1;
+		fastPower(&x, &m, &z);
+	}
+
+	decrement(b, &y);
+	fastPower(a, &y, &z);
+	if (multiple(a, &z, c) == -1)
+		return -1;
+
+	return 0;
+}
+
+//
+//	c <= a * 10 ^ n
+//
+int exponential_N(struct NUMBER *a, struct NUMBER *n, struct NUMBER *c)
+{
+	struct NUMBER x, y, i;
+
+	clearByZero(&x);
+	clearByZero(&y);
+	clearByZero(&i);
+
+	copyNumber(n, &i);
+	copyNumber(a, c);
+	copyNumber(a, &y);
+
+	while (isZero(&i) == -1) {
+		mulBy10(&y, &x);
+		copyNumber(&x, &y);
+
+		decrement(&i, &i);
+	}
+
+	x.sign = a->sign;	//	符号の情報をコピー
+
+	copyNumber(&x,c);
+
+	return 0;
+}
+
+//
+//	c <= a / b の商
+//	d <= a / b の剰余
+//	最適化された除算関数
+//
+int fastDivide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMBER *d)
+{
+	struct NUMBER m, n, e, y;
+
+	int i, k;
+	//int j = 0;
+
+	clearByZero(c);
+	clearByZero(d);
+	clearByZero(&m);
+	clearByZero(&n);
+	clearByZero(&e);
+	clearByZero(&y);
+
+	if (isZero(b) == 0) {
+		return  -1;
+	}
+
+	if (getSign(a) == -1) {
+		if (getSign(b) == -1) {
+			getAbs(a, &m);
+			getAbs(b, &n);
+			fastDivide(&m, &n, c, d);
+			setSign(d, -1);
+			
+			return 0;
+		}
+		else {
+			getAbs(a, &m);
+			copyNumber(b, &n);
+			fastDivide(&m, &n, c, d);
+			setSign(c, -1);
+			setSign(d, -1);
+
+			return 0;
+		}
+	}
+	else if (getSign(b) == -1) {
+		copyNumber(a, &m);
+		getAbs(b, &n);
+		fastDivide(&m, &n, c, d);
+		setSign(c, -1);
+
+		return 0;
+	}
+	setSign(c, 1);
+
+	copyNumber(a, &m);
+
+	while (1) {
+		if (numComp(&m, b) == -1) {
+			copyNumber(&m, d);
+			break;
+		}
+		i = 1;
+
+		copyNumber(b, d);
+		clearByZero(&e);
+		e.n[KETA-1] = 1;
+
+		while (1) {
+			if (numComp(&m, d) == -1) {
+				divBy10(d, d);
+				i--;
+				break;
+			}
+			else if (numComp(&m, d) == 0) {
+				break;
+			}
+
+			if (mulBy10(d, d) == -1) {
+				//return -1;
+				i--;
+				break;
+			}
+
+			i++;
+		}
+
+		for (k = 0; k < i-1; k++) {
+			mulBy10(&e, &e);
+		}
+		sub(&m, d, &m);
+		add(c, &e, c);
+	}
+
+	return 0;
 }
