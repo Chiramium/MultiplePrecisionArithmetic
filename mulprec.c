@@ -36,7 +36,7 @@ void dispNumber(struct NUMBER* a)
 
 	//	各桁ごとの値を順番に表示
 	for (i = 0; i < KETA; i++) {
-		printf("%d ", a->n[i]);
+		printf("%04d ", a->n[i]);
 	}
 }
 
@@ -48,7 +48,7 @@ void setRnd(struct NUMBER *a, int k)
 	int i;
 
 	for (i = 0; i < k; i++) {
-		a->n[(KETA-1) - i] = random() % 10;
+		a->n[(KETA-1) - i] = random() % RADIX;
 	}
 
 	a->sign = random() % 2;	//	符号をどちらかにセット
@@ -59,22 +59,9 @@ void setRnd(struct NUMBER *a, int k)
 //
 void copyNumber(struct NUMBER *a, struct NUMBER *b)
 {
-	if (0) {
-	//	aのメンバー変数をすべてbにコピー
-	int i;
-
-	for (i = 0; i < KETA; i++) {
-		b->n[i] = a->n[i];
-	}
-
-	b->sign = a->sign;
-	}
-
-	if (1) {
 		*b = *a;
 
 		b->sign = a->sign;
-	}
 }
 
 //
@@ -130,20 +117,20 @@ int isOne(struct NUMBER *a)
 }
 
 //
-//	aを10倍してbに返す
+//	aをRADIX倍してbに返す
 //
 //	戻り値
 //	0  ... 正常終了
 //	-1 ... オーバーフロー
 //
-int mulBy10(struct NUMBER *a, struct NUMBER *b)
+int mulByRAD(struct NUMBER *a, struct NUMBER *b)
 {
 	struct NUMBER x;
 	int i;
 
 	clearByZero(&x);
 
-	if (a->n[0] != 0) {	//	aの最上位桁が0でなければ10倍したときにオーバーフローしてしまう
+	if (a->n[0] != 0) {	//	aの最上位桁が0でなければRADIX倍したときにオーバーフローしてしまう
 		return -1;	//	オーバーフロー
 	}
 
@@ -162,12 +149,12 @@ int mulBy10(struct NUMBER *a, struct NUMBER *b)
 }
 
 //
-//	aを1/10倍してbに返す
+//	aを1/RADIX倍してbに返す
 //
 //	戻り値
-//	n ... aを10で割った余り
+//	n ... aをRADIXで割った余り
 //
-int divBy10(struct NUMBER *a, struct NUMBER *b)
+int divByRAD(struct NUMBER *a, struct NUMBER *b)
 {
 	struct NUMBER x;
 	int i;
@@ -213,13 +200,13 @@ int setInt(struct NUMBER *a, int x)
 
     for (i = 0; x > 0; i++)
 	{
-		surplus = x % 10;
+		surplus = x % RADIX;
 		if (i >= KETA) {
 			return -1;
 		}
 		a->n[(KETA-1) - i] = surplus;
 		x -= surplus;
-		x /= 10;
+		x /= RADIX;
 	}
 
 	return 0;
@@ -390,8 +377,8 @@ int add(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 
 	for (i = 0; i < KETA; i++) {
 		x = a->n[KETA-1 - i] + b->n[KETA-1 - i] + e;
-		n.n[KETA-1 - i] = x % 10;
-		e = x / 10;
+		n.n[KETA-1 - i] = x % RADIX;
+		e = x / RADIX;
 	}
 
 	if (e != 0) {
@@ -458,7 +445,7 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 				h = 0;
 			}
 			else {
-				n.n[KETA-1 - i] = 10 + (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
+				n.n[KETA-1 - i] = RADIX + (a->n[KETA-1 - i] - h) - b->n[KETA-1 - i];
 				h = 1;
 			}
 		}
@@ -474,7 +461,7 @@ int sub(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 				h = 0;
 			}
 			else {
-				n.n[KETA-1 - i] = 10 + (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
+				n.n[KETA-1 - i] = RADIX + (b->n[KETA-1 - i] - h) - a->n[KETA-1 - i];
 				h = 1;
 			}
 		}
@@ -569,8 +556,8 @@ int multiple(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 			e = x.n[KETA-1 - j] * y.n[KETA-1 - i] + h;
 			//printf("[%d]\n", KETA-1 - (j + i));
 			if ((j + i) < KETA){
-			d.n[KETA-1 - (j + i)] = e % 10;
-			h = e / 10;
+			d.n[KETA-1 - (j + i)] = e % RADIX;
+			h = e / RADIX;
 			}
 			else {
 				if (e > 0)
@@ -773,7 +760,7 @@ int fastPower(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c)
 }
 
 //
-//	c <= a * 10 ^ n
+//	c <= a * RADIX ^ n
 //
 int exponential_N(struct NUMBER *a, struct NUMBER *n, struct NUMBER *c)
 {
@@ -788,7 +775,7 @@ int exponential_N(struct NUMBER *a, struct NUMBER *n, struct NUMBER *c)
 	copyNumber(a, &y);
 
 	while (isZero(&i) == -1) {
-		mulBy10(&y, &x);
+		mulByRAD(&y, &x);
 		copyNumber(&x, &y);
 
 		decrement(&i, &i);
@@ -868,7 +855,7 @@ int fastDivide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMB
 
 		while (1) {
 			if (numComp(&m, d) == -1) {
-				divBy10(d, d);
+				divByRAD(d, d);
 				i--;
 				break;
 			}
@@ -876,7 +863,7 @@ int fastDivide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMB
 				break;
 			}
 
-			if (mulBy10(d, d) == -1) {
+			if (mulByRAD(d, d) == -1) {
 				//return -1;
 				i--;
 				break;
@@ -886,7 +873,7 @@ int fastDivide(struct NUMBER *a, struct NUMBER *b, struct NUMBER *c, struct NUMB
 		}
 
 		for (k = 0; k < i-1; k++) {
-			mulBy10(&e, &e);
+			mulByRAD(&e, &e);
 		}
 		sub(&m, d, &m);
 		add(c, &e, c);

@@ -4,8 +4,8 @@
 #include "mulprec.h"
 
 //  POWがKETAの約84%の大きさにする
-#define POW 42
-#define E 100
+#define POW 168
+#define E 2
 
 int bellard(struct NUMBER* answer);
 void filePrinter(FILE *fp, struct NUMBER* answer);
@@ -17,16 +17,27 @@ int main()
     fp = fopen("Bellard_Data.txt", "w");
 
 	struct NUMBER answer;
+    int t1 = 0;
+    int t2 = 0;
 
     clearByZero(&answer);
 
-    printf("Bellard = %d\n", bellard(&answer));
+    t1 = time(NULL);
 
-	printf("n= %d", E);
+    printf("\nBellard = %d\n", bellard(&answer));
+
+	printf("KETA = %d", KETA);
+	putchar('\n');
+    printf("POW = %d", POW);
 	putchar('\n');
     printf("-------------------------------\n");
 	dispNumber(&answer);
 	putchar('\n');
+
+    t2 = time(NULL);
+
+    printf("\n__________Calculation Time__________\n");
+    printf("time : %d", t2 - t1);
 
     filePrinter(fp, &answer);
 
@@ -81,16 +92,12 @@ int bellard(struct NUMBER* answer)
     printf("Done\n");
 
     printf("Value setting ... ");
-    two.n[KETA-1] = 2;
-    four.n[KETA-1] = 4;
-    eight.n[KETA-1] = 8;
-    thirtyTwo.n[KETA-1] = 2;
-    thirtyTwo.n[KETA-2] = 3;
-    sixtyFour.n[KETA-1] = 4;
-    sixtyFour.n[KETA-2] = 6;
-    ten24.n[KETA-1] = 4;
-    ten24.n[KETA-2] = 2;
-    ten24.n[KETA-4] = 1;
+    setInt(&two, 2);
+    setInt(&four, 4);
+    setInt(&eight, 8);
+    setInt(&thirtyTwo, 32);
+    setInt(&sixtyFour, 64);
+    setInt(&ten24, 1024);
     printf("Done\n");
 
     setInt(&exp, POW);
@@ -132,6 +139,10 @@ int bellard(struct NUMBER* answer)
         }
 
         add(&s[4], &sigma[0], &sigma[0]);
+
+        if (sigma[0].n[0] > 0) {
+            return -1;
+        }
     }
     multiple(&four, &sigma[0], &fomula[0]);
 
@@ -228,6 +239,7 @@ int bellard(struct NUMBER* answer)
         putchar('\n');*/
         
         add(&t[16], &sigma[1], &sigma[1]);
+
     }
     fastDivide(&sigma[1], &sixtyFour, &fomula[1], &dummy);
 
@@ -245,6 +257,6 @@ void filePrinter(FILE *fp, struct NUMBER* answer)
     int i;
 
     for (i = 0; i < KETA; i++) {
-        fprintf(fp, "%d", answer->n[i]);
+        fprintf(fp, "%04d", answer->n[i]);
     }
 }
