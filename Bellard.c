@@ -4,7 +4,7 @@
 #include "mulprec.h"
 
 //  POWがKETAの約84%の大きさにする
-#define POW 8
+#define POW 16
 #define E 2
 
 int bellard(struct NUMBER* answer);
@@ -17,8 +17,12 @@ int main()
     fp = fopen("Bellard_Data.txt", "w");
 
 	struct NUMBER answer;
+    int t1 = 0;
+    int t2 = 0;
 
     clearByZero(&answer);
+
+    t1 = time(NULL);
 
     printf("\nBellard = %d\n", bellard(&answer));
 
@@ -29,6 +33,11 @@ int main()
     printf("-------------------------------\n");
 	dispNumber(&answer);
 	putchar('\n');
+
+    t2 = time(NULL);
+
+    printf("\n__________Calculation Time__________\n");
+    printf("time : %d", t2 - t1);
 
     filePrinter(fp, &answer);
 
