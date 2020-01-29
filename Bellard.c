@@ -4,8 +4,8 @@
 #include "mulprec.h"
 
 //  POWがKETAの約84%の大きさにする
-#define POW 42
-#define E 100
+#define POW 15
+#define E 2
 
 int bellard(struct NUMBER* answer);
 void filePrinter(FILE *fp, struct NUMBER* answer);
@@ -81,16 +81,12 @@ int bellard(struct NUMBER* answer)
     printf("Done\n");
 
     printf("Value setting ... ");
-    two.n[KETA-1] = 2;
-    four.n[KETA-1] = 4;
-    eight.n[KETA-1] = 8;
-    thirtyTwo.n[KETA-1] = 2;
-    thirtyTwo.n[KETA-2] = 3;
-    sixtyFour.n[KETA-1] = 4;
-    sixtyFour.n[KETA-2] = 6;
-    ten24.n[KETA-1] = 4;
-    ten24.n[KETA-2] = 2;
-    ten24.n[KETA-4] = 1;
+    setInt(&two, 2);
+    setInt(&four, 4);
+    setInt(&eight, 8);
+    setInt(&thirtyTwo, 32);
+    setInt(&sixtyFour, 64);
+    setInt(&ten24, 1024);
     printf("Done\n");
 
     setInt(&exp, POW);
